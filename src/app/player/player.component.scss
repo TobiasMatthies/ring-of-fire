@@ -1,0 +1,29 @@
+.player {
+    width: 350px;
+    background-color: gray;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px;
+    border-bottom-left-radius: 66px;
+    border-top-left-radius: 66px;
+    color: white;
+    font-size: 24px;
+
+    img {
+        height: 50px;
+        width: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+}
+
+.player-active {
+    background-color: #c2185b;
+
+    img {
+        height: 50px;
+        width: 50px;
+        object-fit: cover;
+    }
+}
