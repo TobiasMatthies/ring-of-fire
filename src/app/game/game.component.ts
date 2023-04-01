@@ -17,32 +17,43 @@ export class GameComponent implements OnInit {
   pickCardAnimation = false;
   currentCard: string;
   game: Game = new Game;
-  games$: Observable<any[]>;
- 
   firestore: Firestore = inject(Firestore);
   gamesCollection = collection(this.firestore, 'games');
-  currentGameId: string;
+  gameId: string;
   
 
   constructor(private route: ActivatedRoute, public dialog: MatDialog) {}
 
   ngOnInit() {
     // this.newGame();
-    this.route.params.subscribe(params => {
-      console.log(params['gameId']);
-      this.currentGameId = params['gameId'];
+    this.route.params.subscribe(params => { 
+      this.setGameData(params);
+    });    
+    // let gameInfo = addDoc(this.gamesCollection, this.game.toJson());
+    // console.log(gameInfo);
+  }
+
+
+  setGameData(params: any) {
+    this.gameId = params.id;
+    console.log(this.gameId);
+    let docRef = doc(this.gamesCollection, this.gameId);
+    console.log(docRef);
+    let game$ = docData(docRef);
+    console.log(game$);
+    game$.subscribe((game: any) => {
+      this.game.players = game.players;
+      this.game.playedCards = game.playedCards;
+      this.game.stack = game.stack;
+      this.game.currentPlayer = game.currentPlayer;
+      console.log(game);
     });
-    this.games$ = collectionData(this.gamesCollection);
-    this.games$.subscribe(games => {
-      console.log('Game updated: ', games);
-    });
-   
   }
 
   
   async newGame() {
     this.game = new Game();
-    let gameInfo = await addDoc(this.gamesCollection, { game: this.game.toJson() });
+    let gameInfo = addDoc(this.gamesCollection, { game: this.game.toJson() });
     console.log(gameInfo);
   }
   
