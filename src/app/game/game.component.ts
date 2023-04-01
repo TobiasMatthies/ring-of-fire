@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Game } from 'src/models/game';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
-import { Firestore, collectionData, collection, addDoc, DocumentReference, doc, docData } from '@angular/fire/firestore';
+import { Firestore, collectionData, collection, addDoc, DocumentReference, doc, docData, getFirestore, getDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
@@ -16,7 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 export class GameComponent implements OnInit {
   pickCardAnimation = false;
   currentCard: string;
-  game: Game = new Game;
+  game: Game; 
   firestore: Firestore = inject(Firestore);
   gamesCollection = collection(this.firestore, 'games');
   gameId: string;
@@ -25,36 +25,19 @@ export class GameComponent implements OnInit {
   constructor(private route: ActivatedRoute, public dialog: MatDialog) {}
 
   ngOnInit() {
-    // this.newGame();
     this.route.params.subscribe(params => { 
-      this.setGameData(params);
-    });    
-    // let gameInfo = addDoc(this.gamesCollection, this.game.toJson());
-    // console.log(gameInfo);
-  }
-
-
-  setGameData(params: any) {
-    this.gameId = params.id;
-    console.log(this.gameId);
-    let docRef = doc(this.gamesCollection, this.gameId);
-    console.log(docRef);
-    let game$ = docData(docRef);
-    console.log(game$);
-    game$.subscribe((game: any) => {
-      this.game.players = game.players;
-      this.game.playedCards = game.playedCards;
-      this.game.stack = game.stack;
-      this.game.currentPlayer = game.currentPlayer;
-      console.log(game);
+      this.getGameData(params);
     });
   }
 
-  
-  async newGame() {
-    this.game = new Game();
-    let gameInfo = addDoc(this.gamesCollection, { game: this.game.toJson() });
-    console.log(gameInfo);
+
+  async getGameData(params: any) {
+    this.gameId = params.id;
+    const db = getFirestore();
+    const docRef = doc(db, "games", this.gameId);
+    const docSnap = await getDoc(docRef); 
+    this.game = docSnap.data() as Game;    
+    console.log(this.game);
   }
   
   pickCard() {
@@ -69,6 +52,8 @@ export class GameComponent implements OnInit {
         this.pickCardAnimation = false;
       }, 1250);
     }
+    console.log(this.game);
+    
   }
 
 
