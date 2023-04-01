@@ -16,7 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 export class GameComponent implements OnInit {
   pickCardAnimation = false;
   currentCard: string;
-  game: Game; 
+  game: Game = new Game(); 
   firestore: Firestore = inject(Firestore);
   gamesCollection = collection(this.firestore, 'games');
   gameId: string;
@@ -36,7 +36,10 @@ export class GameComponent implements OnInit {
     const db = getFirestore();
     const docRef = doc(db, "games", this.gameId);
     const docSnap = await getDoc(docRef); 
-    this.game = docSnap.data() as Game;    
+    this.game.players = docSnap.data()['players'];
+    this.game.currentPlayer = docSnap.data()['currentPlayer'];
+    this.game.playedCards = docSnap.data()['playedCards'];
+    this.game.stack = docSnap.data()['stack'];  
     console.log(this.game);
   }
   
