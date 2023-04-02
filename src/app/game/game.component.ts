@@ -19,7 +19,7 @@ export class GameComponent implements OnInit {
   game: Game; 
   firestore: Firestore = inject(Firestore);
   gamesCollection = collection(this.firestore, 'games');
-  gameId: string;
+  gameId: string= '';
   db = getFirestore();
   
 
@@ -43,10 +43,12 @@ export class GameComponent implements OnInit {
   async getGameData(params: any) {
     onSnapshot(this.gamesCollection, (docSnap) => {
       docSnap.forEach(doc => {
-        this.game.players = doc.data()['players'];
+        if(doc.id == this.gameId) {
+         this.game.players = doc.data()['players'];
         this.game.currentPlayer = doc.data()['currentPlayer'];
         this.game.playedCards = doc.data()['playedCards'];
         this.game.stack = doc.data()['stack'];  
+        }
       });
     });
     console.log('Game update: ', this.game);
