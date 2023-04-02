@@ -52,11 +52,13 @@ export class GameComponent implements OnInit {
       });
     });
     console.log('Game update: ', this.game);
+    console.log('Number of players: ', this.game.players.length);
+    
   }
 
   
   pickCard() {
-    if (!this.pickCardAnimation) {
+    if (!this.pickCardAnimation && this.game.players.length > 1) {
       this.currentCard = this.game.stack.pop();
       console.log('Picked Card is: ' + this.currentCard);
       this.pickCardAnimation = true;
@@ -68,6 +70,8 @@ export class GameComponent implements OnInit {
         this.updateGame();
         this.pickCardAnimation = false;
       }, 1250);
+    } else {
+      alert('Lorem Ipsum');
     }
   }
 
