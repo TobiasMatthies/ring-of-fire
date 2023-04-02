@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Game } from 'src/models/game';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
-import { Firestore, collectionData, collection, addDoc, DocumentReference, doc, docData, getFirestore, getDoc } from '@angular/fire/firestore';
+import { Firestore, collectionData, collection, addDoc, DocumentReference, doc, docData, getFirestore, getDoc, setDoc, onSnapshot } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
@@ -16,32 +16,42 @@ import { ActivatedRoute } from '@angular/router';
 export class GameComponent implements OnInit {
   pickCardAnimation = false;
   currentCard: string;
-  game: Game = new Game(); 
+  game: Game; 
   firestore: Firestore = inject(Firestore);
   gamesCollection = collection(this.firestore, 'games');
   gameId: string;
+  db = getFirestore();
   
 
-  constructor(private route: ActivatedRoute, public dialog: MatDialog) {}
+  constructor(private route: ActivatedRoute, public dialog: MatDialog) { }
+  
 
   ngOnInit() {
+    this.newGame();
     this.route.params.subscribe(params => { 
+      this.gameId = params['id'];
       this.getGameData(params);
     });
   }
 
 
-  async getGameData(params: any) {
-    this.gameId = params.id;
-    const db = getFirestore();
-    const docRef = doc(db, "games", this.gameId);
-    const docSnap = await getDoc(docRef); 
-    this.game.players = docSnap.data()['players'];
-    this.game.currentPlayer = docSnap.data()['currentPlayer'];
-    this.game.playedCards = docSnap.data()['playedCards'];
-    this.game.stack = docSnap.data()['stack'];  
-    console.log(this.game);
+   newGame() {
+    this.game = new Game();
   }
+
+
+  async getGameData(params: any) {
+    onSnapshot(this.gamesCollection, (docSnap) => {
+      docSnap.forEach(doc => {
+        this.game.players = doc.data()['players'];
+        this.game.currentPlayer = doc.data()['currentPlayer'];
+        this.game.playedCards = doc.data()['playedCards'];
+        this.game.stack = doc.data()['stack'];  
+      });
+    });
+    console.log('Game update: ', this.game);
+  }
+
   
   pickCard() {
     if (!this.pickCardAnimation) {
@@ -50,28 +60,37 @@ export class GameComponent implements OnInit {
       this.pickCardAnimation = true;
       this.game.currentPlayer++
       this.game.currentPlayer = this.game.currentPlayer % this.game.players.length;
+      this.updateGame();
       setTimeout(() => {
         this.game.playedCards.push(this.currentCard);
+        this.updateGame();
         this.pickCardAnimation = false;
       }, 1250);
     }
-    console.log(this.game);
-    
   }
 
 
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddPlayerComponent);
-
     dialogRef.afterClosed().subscribe((name: string) => {
       if (name && name.length >= 3) {
-      this.game.players.push(name);
+        this.game.players.push(name);
+        this.updateGame();
       }
     });
-  
   }
-}
 
-function playerName(value: any): void {
-  throw new Error('Function not implemented.');
+
+  updateGame() { 
+    const docRef = doc(this.db, "games", this.gameId);
+    const gameData = this.game.toJson();
+    setDoc(docRef, gameData).then(() => {
+      console.log("Document successfully written!", this.game);
+    });
+  }
+
+
+  playerName(value: any): void {
+    throw new Error('Function not implemented.');
+  }
 }
