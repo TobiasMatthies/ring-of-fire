@@ -5,6 +5,7 @@ import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player
 import { Firestore, collectionData, collection, addDoc, DocumentReference, doc, docData, getFirestore, getDoc, setDoc, onSnapshot } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { PlayerAmountService } from '../player-amount.service';
 
 
 
@@ -23,7 +24,7 @@ export class GameComponent implements OnInit {
   db = getFirestore();
   
 
-  constructor(private route: ActivatedRoute, public dialog: MatDialog) { }
+  constructor(private playeramountService: PlayerAmountService, private route: ActivatedRoute, public dialog: MatDialog) { }
   
 
   ngOnInit() {
@@ -31,7 +32,7 @@ export class GameComponent implements OnInit {
     this.route.params.subscribe(params => { 
       this.gameId = params['id'];
       this.getGameData(params);
-    });
+    }); 
   }
 
 
@@ -50,10 +51,10 @@ export class GameComponent implements OnInit {
         this.game.stack = doc.data()['stack'];  
         }
       });
+      this.playeramountService.triggerPlayerSubject(this.game.players.length);
+      console.log('Number of players: ', this.game.players.length);
     });
     console.log('Game update: ', this.game);
-    console.log('Number of players: ', this.game.players.length);
-    
   }
 
   
@@ -70,9 +71,7 @@ export class GameComponent implements OnInit {
         this.updateGame();
         this.pickCardAnimation = false;
       }, 1250);
-    } else {
-      alert('Lorem Ipsum');
-    }
+    } 
   }
 
 

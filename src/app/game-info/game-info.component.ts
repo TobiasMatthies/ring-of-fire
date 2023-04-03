@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { PlayerAmountService } from '../player-amount.service';
 
 @Component({
   selector: 'app-game-info',
@@ -24,12 +25,17 @@ export class GameInfoComponent implements OnInit, OnChanges {
   title = '';
   description = '';
   @Input() card: string;
+  amountPlayer: number;
   
   
-  constructor() { }
+  constructor(private playeramountService: PlayerAmountService) { }
 
   
   ngOnInit(): void {
+    this.playeramountService.amountPlayer.subscribe((numberPlayers) => {
+      this.amountPlayer = numberPlayers;
+      console.log('Number of players in game info: ', this.amountPlayer);
+    });
   }
 
   
