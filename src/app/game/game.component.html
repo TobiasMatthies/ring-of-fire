@@ -3,8 +3,27 @@
 <div class="playground">
     <div class="card-stack">
         <!-- card stack -->
-        <img *ngFor="let cards of [0, 1, 2, 3]; let i = index;" [ngStyle]="{'left.px': i * 5}" src="assets/img/cards/card_cover.png" alt="">
-        <img (click)="pickCard()" src="assets/img/cards/card_cover.png" alt="" style="left: 25px;">
+        <div *ngIf="this.game.stack.length >= 5">
+            <img *ngFor="let cards of [0, 1, 2, 3]; let i = index;" [ngStyle]="{'left.px': i * 5}" src="assets/img/cards/card_cover.png" alt="">
+            <img (click)="pickCard()" src="assets/img/cards/card_cover.png" alt="" style="left: 25px;">
+        </div>
+        <div *ngIf="this.game.stack.length == 4">
+            <img *ngFor="let cards of [0, 1, 2]; let i = index;" [ngStyle]="{'left.px': i * 5}" src="assets/img/cards/card_cover.png" alt="">
+            <img (click)="pickCard()" src="assets/img/cards/card_cover.png" alt="" style="left: 20px;">
+        </div>
+        <div *ngIf="this.game.stack.length == 3">
+            <img *ngFor="let cards of [0, 1]; let i = index;" [ngStyle]="{'left.px': i * 5}" src="assets/img/cards/card_cover.png" alt="">
+            <img (click)="pickCard()" src="assets/img/cards/card_cover.png" alt="" style="left: 15px;">
+        </div>
+        <div *ngIf="this.game.stack.length == 2">
+            <img *ngFor="let cards of [0]" src="assets/img/cards/card_cover.png" alt="">
+            <img (click)="pickCard()" src="assets/img/cards/card_cover.png" alt="" style="left: 10px;">
+        </div>
+        <div *ngIf="this.game.stack.length == 1">
+            <img (click)="pickCard()" src="assets/img/cards/card_cover.png" alt="">
+        </div>
+        <div *ngIf="this.game.stack.length == 0">
+        </div>
 
         <!-- stack of played card -->
         <img *ngFor="let card of game.playedCards" class="played-card" src="assets/img/cards/{{ card }}.png" alt="">
